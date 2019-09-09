@@ -1,42 +1,30 @@
-import { get, post } from '@/utils/request'
+import { post } from '@/utils/request'
 
-//  根据区域查询医院列表
-export function getHospitalByArea (params) {
-  return get('/app/hospital/list', params)
-}
-//  获取区域列表
-export function getHospitalArea (params) {
-  return get('/app/hospital/areas', params)
-}
-//  获取科室列表
+//  获取医院可挂号的科室列表，包括一级科室和二级科室
 export function getRegisterDept (params) {
-  return get('/app/register/dept', params)
+  return post('/portal/register/dept', {data: params})
 }
-// 获取医院下所有医生列表
-export function getDoctorInHos (params) {
-  return get('/app/hospital/docts', params)
+//  挂号时获取排班医生的信息列表
+export function getRegisterDoct (params) {
+  return post('/portal/register/doct', {data: params})
 }
-//  获取医生排班
-export function getDoctorWork (params) {
-  return get('/app/register/doct', params)
+//  挂号时获取医生的实时排班列表
+export function getRegisterScheduling (params) {
+  return post('/portal/register/scheduling', {data: params})
 }
-/* 获取日期列表 */
-export function getTimeTable (params) {
-  return get('/app/register/date', params)
+// 挂号确认
+export function getRegisterLock (params) {
+  return post('/portal/register/lock', {data: params})
 }
-/* 获取实时排班 */
-export function getTimeSchedules (params) {
-  return get('/app/register/scheduling', params)
+// 取消挂号
+export function getRegisterUnlock (params) {
+  return post('/portal/register/unlock', {data: params})
 }
-//  获取医生信息
-export function getDocInfo (params) {
-  return get('/app/hospital/doctInfo', params)
+// 获取挂号列表
+export function getRegisterList (params) {
+  return post('/portal/register/list', {data: params})
 }
-/* 挂号锁号 */
-export function registLock (params) {
-  return post('/app/register/lock', params)
-}
-// 生成缴费订单
-export function applyOrder (params) {
-  return post('/app/pay/order', params)
+// 退号
+export function getRegisterRefund (params) {
+  return post('/portal/register/refund', {data: params})
 }

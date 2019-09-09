@@ -37,8 +37,8 @@
 </template>
 <script>
     import MenuList from '@/components/MenusList'
-    import { login } from '@/service/user.service'
-    import { setItem } from '@/utils/store'
+    import { systemAuthorize, login } from '@/service/user.service'
+    import { setItem, getItem } from '@/utils/store'
     // import queryVoucher from 'voucher.service'
     // import VoucherItem from '../voucher/HealthCardItem'
 
@@ -46,20 +46,35 @@
       data: function () {
         return {
           voucherList: [],
-          showVoucherList: false
+          showVoucherList: false,
+          userInfo: {}
         }
       },
       components: {
         MenuList
       },
       // 从自定义菜单中点击进入是获取code
-      onLoad () {
+      async onLoad () {
+        let auth = await systemAuthorize()
+        if (auth.result === this.constant.RESULT_SUCCESS) {
+          setItem('accessToken', auth.data.accessToken)
+        }
+        const u = getItem('userInfo')
+        let params = {
+          code: '',
+          loginType: '3',
+          extraMap: {
+            encryptedData: u.encryptedData,
+            iv: u.iv,
+            rawData: u.rawData,
+            signature: u.signature
+          }
+        }
         wx.login({
           success (res) {
             if (res.code) {
-              console.log(res.code)
-              login({loginType: '3', code: res.code}).then(result => {
-                console.log(result)
+              params.code = res.code
+              login(params).then(result => {
                 setItem('token', result.tokenId)
               })
             } else {

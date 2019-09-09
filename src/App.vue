@@ -1,6 +1,7 @@
 <script>
 export default {
   created () {
+    console.log('create....')
     // 调用API从本地缓存中获取数据
     /*
      * 平台 api 差异的处理方式:  api 方法统一挂载到 mpvue 名称空间, 平台判断通过 mpvuePlatform 特征字符串
@@ -9,20 +10,6 @@ export default {
      * 百度：mpvue === swan, mpvuePlatform === 'swan'
      * 支付宝(蚂蚁)：mpvue === my, mpvuePlatform === 'my'
      */
-    // 判断用户是否授权
-    // let _this = this
-    // wx.getSetting({
-    //   success (res) {
-    //     console.log(!res.authSetting['scope.userInfo'])
-    //     if (!res.authSetting['scope.userInfo']) {
-    //       // wx.hideTabBar()
-    //       wx.reLaunch({
-    //         url: 'authorize'
-    //       })
-    //       // _this.$utils.navigateTo('authorize', {}, 2)
-    //     }
-    //   }
-    // })
   },
   log () {
     console.log(`log at:${Date.now()}`)

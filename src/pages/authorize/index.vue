@@ -1,9 +1,9 @@
 <template>
   <div class="about">
-    <div class="about-content">
+    <div class="about-content" v-if="showAuthorize">
       <div>
         <div class="logo">
-          <img src="" alt="">
+          <img src="/static/images/navigation_logo.png" alt="">
         </div>
         <div class="area">
           <h4>该程序将获取以下授权</h4>
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import { linkUser } from '@/service/api.service'
 import { setItem } from '@/utils/store'
 export default {
   data: function () {
@@ -28,65 +27,35 @@ export default {
       info: {},
       path: '',
       code: '',
-      callback: null
+      callback: null,
+      showAuthorize: false
     }
   },
-  components: {
-    // NavBar
-  },
-  computed: {
-    // customTop () {
-    //   return this.$utils.getCustomeHeigth()
-    // }
-  },
-  onLoad () {
-    // let q = this.$root.$mp.query
-    // q.callback && (this.callback = q.callback)
-    this.toLogin()
+  created () {
+    // 判断用户是否授权
+    let _this = this
+    wx.getSetting({
+      success (res) {
+        if (res.authSetting['scope.userInfo']) {
+          wx.reLaunch({
+            url: '/pages/index/main'
+          })
+        } else {
+          _this.showAuthorize = true
+        }
+      }
+    })
   },
   methods: {
-    toLogin () {
-      let _this = this
-      wx.login({
-        success (res) {
-          if (res.code) {
-            _this.code = res.code
-          } else {
-            console.log('登录失败！' + res.errMsg)
-          }
-        }
-      })
-    },
     async getuserinfo (e) {
-      if (e.mp.detail.errMsg !== 'getUserInfo:ok') {
-        this.$utils.back()
-        return
-      }
-      //  调用解密接口,创建新用户,本地保存用户信息
-      let userInfo = e.mp.detail.userInfo
-      let params = {
-        nickname: userInfo.nickName,
-        js_code: this.code,
-        avatar: userInfo.avatarUrl
-      }
-      let res = await linkUser(params)
-      if (res.code === 1) {
-        //  保存用户id
-        userInfo.userId = res.data
-        setItem('userId', res.data)
-        setItem('userInfo', userInfo)
-        this.$store.commit('setUserInfo', userInfo)
-      }
-      let callback = this.$store.state.callback
-      if (callback) {
-        callback()
-        // eval(this.callback)
-      } else {
-        this.$utils.back()
-      }
-      // let toPath = this.path ? this.path : 'main'
-      // let type = toPath === 'main' ? 3 : 2
-      // this.$utils.navigateTo(toPath, {}, type)
+      if (e.mp.detail.errMsg !== 'getUserInfo:ok') return
+      // 本地保存用户信息
+      let userInfo = e.mp.detail
+      setItem('userInfo', userInfo)
+      //  跳转到首页
+      wx.reLaunch({
+        url: '/pages/index/main'
+      })
     }
   }
 }
@@ -102,8 +71,8 @@ export default {
       padding: 13px 0 19px 0;
       text-align: center;
       img{
-        width: 135px;
-        height: 111px;
+        width: 128px;
+        height: 29px;
       }
     }
     .area{
@@ -128,6 +97,7 @@ export default {
       height: 50px;
       color: #fff;
       background: #038C73;
+      font-size: inherit;
     }
   }
 }
