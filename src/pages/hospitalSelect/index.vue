@@ -37,7 +37,7 @@
 import hisHospital from '@/components/hisHospital'
 import NavList from '@/components/NavList'
 import NoRecord from '@/components/NoRecord'
-import { getHospitalByArea, getHospitalArea } from '@/service/hospital.service'
+// import { getHospitalByArea, getHospitalArea } from '@/service/hospital.service'
 import { setItem } from '@/utils/store'
 export default {
   data: function () {
@@ -100,40 +100,40 @@ export default {
       //  将选择的医院信息保存在本地
       // setItem('selectedHospital',item)
       //  查询是否有区域
-      let areaList = await getHospitalArea({
-        orgId: item.orgId,
-        hospitalId: item.id
-      })
-      if (areaList.resultCode === this.constant.RESULT_SUCCESS) {
-        //  todo 显示区域列表(如果有的话) ,目前还没做
-        if (areaList.data.length > 1) {
-          //  todo
-          this.hosAreaList = areaList.data
-          this.showArea = true
-          this.tempHosInfo = item
-        } else if (areaList.data.length === 1) {
-          setItem('selectedHospital', item)
-          setItem('selectedArea', areaList.data[0])
-          // if(!!areaList.data && areaList.data.length > 0){
-          //   setItem('selectedArea',areaList.data[0])
-          //   areaId = areaList.data[0].areaId
-          // }else{
-          //   areaId = item.areaLevel
-          // }
-          //  todo 根据不同的路径 返回方式不一样
-          // if(this.waitUrl === 'noredirect'){
-          //   this.$utils.back(2)
-          //   return
-          // }
-          let areaId = areaList.data[0].areaId
-          this.go(areaId)
-          // mpvue.redirectTo({
-          //   url: '../' + this.waitUrl +'/main?areaId=' + areaId
-          // })
-        } else {
-          this.$utils.showToast('暂未找到院区')
-        }
-      }
+      // let areaList = await getHospitalArea({
+      //   orgId: item.orgId,
+      //   hospitalId: item.id
+      // })
+      // if (areaList.resultCode === this.constant.RESULT_SUCCESS) {
+      //   //  todo 显示区域列表(如果有的话) ,目前还没做
+      //   if (areaList.data.length > 1) {
+      //     //  todo
+      //     this.hosAreaList = areaList.data
+      //     this.showArea = true
+      //     this.tempHosInfo = item
+      //   } else if (areaList.data.length === 1) {
+      //     setItem('selectedHospital', item)
+      //     setItem('selectedArea', areaList.data[0])
+      //     // if(!!areaList.data && areaList.data.length > 0){
+      //     //   setItem('selectedArea',areaList.data[0])
+      //     //   areaId = areaList.data[0].areaId
+      //     // }else{
+      //     //   areaId = item.areaLevel
+      //     // }
+      //     //  todo 根据不同的路径 返回方式不一样
+      //     // if(this.waitUrl === 'noredirect'){
+      //     //   this.$utils.back(2)
+      //     //   return
+      //     // }
+      //     let areaId = areaList.data[0].areaId
+      //     this.go(areaId)
+      //     // mpvue.redirectTo({
+      //     //   url: '../' + this.waitUrl +'/main?areaId=' + areaId
+      //     // })
+      //   } else {
+      //     this.$utils.showToast('暂未找到院区')
+      //   }
+      // }
     },
     go (areaId) {
       if (this.waitUrl === 'noredirect') {
@@ -150,16 +150,16 @@ export default {
     },
     //  获取医院列表
     async getHospitalList (id) {
-      let data = {
-        areaLevel: id,
-        orgId: '1001'
-      }
-      let res = await getHospitalByArea(data)
-      if (res.resultCode === '1') {
-        this.hospitalList = res.data
-        //  将数据保存在vuex中
-        this.$store.commit('setHospitalList', res.data)
-      }
+      // let data = {
+      //   areaLevel: id,
+      //   orgId: '1001'
+      // }
+      // let res = await getHospitalByArea(data)
+      // if (res.resultCode === '1') {
+      //   this.hospitalList = res.data
+      //   //  将数据保存在vuex中
+      //   this.$store.commit('setHospitalList', res.data)
+      // }
     },
     toContinue (e) {
       this.go()

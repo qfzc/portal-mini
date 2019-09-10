@@ -37,7 +37,7 @@
 </template>
 <script>
 import tabs from '@/components/tabs'
-import { getRegisterDept, getDoctorInHos } from '@/service/register.service'
+import { getRegisterDept, getRegisterDoct } from '@/service/register.service'
 import { getItem } from '@/utils/store'
 export default {
   data: function () {
@@ -83,7 +83,7 @@ export default {
         hospitalId: hosInfo.id,
         areaId: this.areaId
       }
-      let res = await getDoctorInHos(data)
+      let res = await getRegisterDoct(data)
       if (res.resultCode === '1') {
         this.docList = res.data.length > 100 ? res.data.slice(0, 90) : res.data
       }
