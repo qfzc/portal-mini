@@ -19,59 +19,59 @@
 </template>
 <script>
 import { getVoucherList } from '@/service/api.service'
-import{ setItem, getItem } from '@/utils/store'
+import { getItem } from '@/utils/store'
 export default {
-    props: {
-      // voucherList: {
-      //   type: Array
-      // },
-      voucher: {
-          type: Object
-      },
-      canChoose: {
-          type: Boolean,
-          default:function(){
-            return false
-          }
-      }
-    },
-    data:function(){
-      return {
-        flag: -1,
-        voucherList: []
-      }
-    },
-    onLoad(){
-      this.refresh()
-    },
-    // onShow(){
-    //   this.refresh()
+  props: {
+    // voucherList: {
+    //   type: Array
     // },
-    methods: {
-      refresh() {
-          let v = getItem('selectedVoucher')
-          if (v === undefined || v === null) {
-            this.flag = 0;
-          }
-          getVoucherList().then((res) => {
-              if (res.resultCode === '1') {
-                this.voucherList = res.data;
-                if(!!v && res.data.length > 0){
-                  for(let i = 0;i<res.data.length;i++){
-                    if(res.data[i].cardNo === v.cardNo){
-                      this.flag = i
-                      break
-                    }
-                  }
-                }
-              }
-          });
-      },
-      selectVoucher(voucher,index) {
-        this.canChoose && (this.flag = index)
-        this.$emit('selected', voucher, index);
+    voucher: {
+      type: Object
+    },
+    canChoose: {
+      type: Boolean,
+      default: function () {
+        return false
       }
     }
+  },
+  data: function () {
+    return {
+      flag: -1,
+      voucherList: []
+    }
+  },
+  onLoad () {
+    this.refresh()
+  },
+  // onShow(){
+  //   this.refresh()
+  // },
+  methods: {
+    refresh () {
+      let v = getItem('selectedVoucher')
+      if (v === undefined || v === null) {
+        this.flag = 0
+      }
+      getVoucherList().then((res) => {
+        if (res.resultCode === '1') {
+          this.voucherList = res.data
+          if (!!v && res.data.length > 0) {
+            for (let i = 0; i < res.data.length; i++) {
+              if (res.data[i].cardNo === v.cardNo) {
+                this.flag = i
+                break
+              }
+            }
+          }
+        }
+      })
+    },
+    selectVoucher (voucher, index) {
+      this.canChoose && (this.flag = index)
+      this.$emit('selected', voucher, index)
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>

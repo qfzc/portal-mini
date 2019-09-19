@@ -25,129 +25,129 @@
   </div>
 </template>
 <script>
-import { getTimeTable } from "@/service/api.service";
-import { getItem } from "@/utils/store";
-const commitDate = function(vm, dateObj) {
+import { getTimeTable } from '@/service/api.service'
+import { getItem } from '@/utils/store'
+const commitDate = function (vm, dateObj) {
   // vm.$store.commit('updateParam', {
   //     namespace: 'register',
   //     date: dateObj
   // });
-};
+}
 export default {
   props: {
     areaId: String,
     deptId: String
   },
-  onLoad() {
+  onLoad () {
     this.refresh()
   },
-  onShow(){
+  onShow () {
     this.refresh()
   },
-  data() {
+  data () {
     return {
-      selectedDay: { value: "", weekDay: "" },
+      selectedDay: { value: '', weekDay: '' },
       page: 1,
       dateList: [],
       isInCity: false
-    };
+    }
   },
   computed: {
-    currentShowList() {
-      const page = this.page;
-      return this.dateList.slice((page - 1) * 5, page * 5);
+    currentShowList () {
+      const page = this.page
+      return this.dateList.slice((page - 1) * 5, page * 5)
     }
   },
   methods: {
-    refresh(){
-      var params = this.$store.getters.getRegDate;
+    refresh () {
+      var params = this.$store.getters.getRegDate
       if (params) {
-          this.selectedDay = params;
+        this.selectedDay = params
       } else {
-      let curDate = new Date().format("yyyy-MM-dd");
-      this.selectedDay = {
-        value: curDate,
-        weekDay: this.$utils.getWeekDay(new Date()),
-        mounth: curDate.substring(5, 7),
-        day: curDate.substring(8, 10)
-      };
+        let curDate = new Date().format('yyyy-MM-dd')
+        this.selectedDay = {
+          value: curDate,
+          weekDay: this.$utils.getWeekDay(new Date()),
+          mounth: curDate.substring(5, 7),
+          day: curDate.substring(8, 10)
+        }
       }
-      this.loadTimeTable();
+      this.loadTimeTable()
     },
-    //加载可用时段
-    loadTimeTable() {
-      let data = getItem("selectedHospital");
+    // 加载可用时段
+    loadTimeTable () {
+      let data = getItem('selectedHospital')
       var requestParams = {
         orgId: data.orgId,
         hospitalId: data.id,
         areaId: this.areaId,
         deptId: this.deptId
-      };
+      }
       getTimeTable(requestParams).then(res => {
-        if (res.resultCode !== "1") {
-          this.$utils.alert(res.resultMsg);
-          return;
+        if (res.resultCode !== '1') {
+          this.$utils.alert(res.resultMsg)
+          return
         }
-        var tables = res.data || [];
+        var tables = res.data || []
 
-        //判断数组不为空
+        // 判断数组不为空
         if (tables.length === 0) {
-          return;
+          return
         }
 
-        const utils = this.$utils;
-        const today = new Date();
+        const utils = this.$utils
+        const today = new Date()
         for (let i = 0; i < tables.length; i++) {
-          const dateStr = tables[i].date;
-          const date = new Date(parseInt(dateStr));
+          const dateStr = tables[i].date
+          const date = new Date(parseInt(dateStr))
           const isToday =
             date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth();
-          const temp_date = date.format("yyyy-MM-dd");
+            date.getMonth() === today.getMonth()
+          const temp_date = date.format('yyyy-MM-dd')
           const timeObj = {
             weekDay: utils.getWeekDay(date),
             isToday: isToday,
-            monthDay: isToday ? "今" : date.getDate(),
+            monthDay: isToday ? '今' : date.getDate(),
             value: temp_date,
             mounth: temp_date.substring(5, 7),
             day: temp_date.substring(8, 10)
-          };
-          this.dateList.push(timeObj);
-          if (this.selectedDay.value === date.format("yyyy-MM-dd")) {
+          }
+          this.dateList.push(timeObj)
+          if (this.selectedDay.value === date.format('yyyy-MM-dd')) {
             // this.isInCity = true
-            this.$emit("change", timeObj);
+            this.$emit('change', timeObj)
           }
         }
 
-        //判断市内、市外挂号
+        // 判断市内、市外挂号
         // if (this.isInCity === false) {
         //     this.selectedDay = this.dateList[0];
         //     commitDate(this, this.dateList[0]);
         //     this.$emit('change', this.dateList[0]);
         // }
-      });
+      })
     },
     // 翻页
-    onRollPage(next) {
-      const totalPage = Math.ceil(this.dateList.length / 5);
+    onRollPage (next) {
+      const totalPage = Math.ceil(this.dateList.length / 5)
       if (this.page + next > totalPage || this.page + next === 0) {
-        return;
+        return
       }
-      this.page += next;
-      const nextPageTemp = this.dateList[(this.page - 1) * 5];
-      this.selectedDay = nextPageTemp;
+      this.page += next
+      const nextPageTemp = this.dateList[(this.page - 1) * 5]
+      this.selectedDay = nextPageTemp
       // commitDate(this, nextPageTemp)
-      this.$emit("change", nextPageTemp);
+      this.$emit('change', nextPageTemp)
     },
-    //选择日期
-    select: function(day) {
-      this.selectedDay = day;
+    // 选择日期
+    select: function (day) {
+      this.selectedDay = day
 
       // commitDate(this, day);
-      this.$emit("change", day);
+      this.$emit('change', day)
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 $main-blue: #51a8ec;

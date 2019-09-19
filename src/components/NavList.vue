@@ -7,8 +7,8 @@
           <p>{{item.name}}</p>
         </div>
         <div class="navigator-icon">
-          <img v-if="flag" src="http://bmob-cdn-20712.b0.upaiyun.com/2019/04/02/86b90c4c402a578f80b7f79b185581a3.png" alt>
-          <img v-else src="http://bmob-cdn-20712.b0.upaiyun.com/2019/03/14/01f7edc4408d6f5e80cb437c51830356.png" alt>
+          <img v-if="flag" :src="originImgUrl + 'more-arrow.png'" alt>
+          <img v-else :src="originImgUrl + 'more-arrow.png'" alt>
         </div>
       </li>
     </ul>
@@ -34,6 +34,11 @@ export default {
       default: function () {
         return 'big'
       }
+    }
+  },
+  computed: {
+    originImgUrl () {
+      return this.constant.LOCAL_IMG
     }
   },
   methods: {

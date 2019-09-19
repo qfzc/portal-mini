@@ -2,7 +2,7 @@
     <div class="app">
         <div class="app-content">
             <div class="banner" v-if="showVoucherList">
-                <img :src="constant.LOCAL_IMG + 'banner.png'" alt="">
+                <img :src="originImgUrl + 'banner.png'" alt="">
                 <button @click="toPage('checkInformation')"></button>
             </div>
             <!-- 绑卡之后的样式 -->
@@ -31,16 +31,13 @@
                 <button @click="toPage('userCenter')">前往个人中心></button>
             </div>
         </div>
-        <!-- <open-data type="userAvatarUrl"></open-data> -->
-        <!-- <open-data type="userNickName"></open-data> -->
     </div>
 </template>
 <script>
     import MenuList from '@/components/MenusList'
     import { systemAuthorize, login } from '@/service/user.service'
+    import { getVoucherList } from '@/service/voucher.service'
     import { setItem, getItem } from '@/utils/store'
-    // import queryVoucher from 'voucher.service'
-    // import VoucherItem from '../voucher/HealthCardItem'
 
     export default {
       data: function () {
@@ -53,13 +50,30 @@
       components: {
         MenuList
       },
+      computed: {
+        originImgUrl () {
+          return this.constant.LOCAL_IMG
+        }
+      },
       // 从自定义菜单中点击进入是获取code
       async onLoad () {
-        let auth = await systemAuthorize()
-        if (auth.result === this.constant.RESULT_SUCCESS) {
-          setItem('accessToken', auth.data.accessToken)
+        //  判断是否有accessToken
+        let accessToken = getItem('accessToken')
+        if (!accessToken) {
+          let auth = await systemAuthorize()
+          if (auth.result === this.constant.RESULT_SUCCESS) {
+            setItem('accessToken', auth.data.accessToken)
+          }
         }
-        const u = getItem('userInfo')
+        let u = getItem('userInfo')
+        if (!u) {
+          wx.getUserInfo({
+            success: function (res) {
+              setItem('userInfo', res)
+              u = res
+            }
+          })
+        }
         let params = {
           code: '',
           loginType: '3',
@@ -75,17 +89,27 @@
             if (res.code) {
               params.code = res.code
               login(params).then(result => {
-                setItem('token', result.tokenId)
+                setItem('token', result.data.tokenId)
               })
             } else {
               console.log('登录失败！' + res.errMsg)
             }
           }
         })
-        // this.getVoucherList()
+        this.getVoucherLists()
       },
       methods: {
-
+        getVoucherLists () {
+          getVoucherList().then(res => {
+            if (res.result === this.constant.RESULT_SUCCESS) {
+              this.showVoucherList = res.data.length === 0
+              this.voucherList = res.data
+              if (res.data.length > 0) {
+                setItem('selectedVoucher', res.data[0])
+              }
+            }
+          })
+        }
       }
     }
 </script>
@@ -117,7 +141,7 @@
     }
     .user-btn {
         padding: 0 15px;
-        margin-bottom: 10px;
+        padding-bottom: 10px;
         button {
             height: 44px;
             background: linear-gradient(270deg, rgba(61, 134, 255, 1), rgba(113, 190, 255, 1));

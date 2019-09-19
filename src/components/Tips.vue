@@ -18,22 +18,22 @@
 </template>
 <script>
     export default {
-        props: {
-            value: Boolean,
-        },
-        data() {
-            return {
-                isActive: this.value,
-            }
-        },
-        watch: {
-            isActive(val){
-                this.$emit('input', val)
-            },
-            value(val){
-                this.isActive = val;
-            }
+      props: {
+        value: Boolean
+      },
+      data () {
+        return {
+          isActive: this.value
         }
+      },
+      watch: {
+        isActive (val) {
+          this.$emit('input', val)
+        },
+        value (val) {
+          this.isActive = val
+        }
+      }
     }
 </script>
 <style lang="scss" >

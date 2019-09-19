@@ -1,8 +1,9 @@
 import { getItem, setItem } from './store'
 import { systemAuthorize } from '@/service/user.service'
+import util from './index'
 var Fly = require('flyio/dist/npm/wx')
 var fly = new Fly()
-fly.config.baseURL = 'http://114.115.204.39:8165/'
+fly.config.baseURL = 'http://114.115.204.39:8167/'
 // fly.config.baseURL = 'http://148.70.16.29:7003/api'
 fly.config.headers = {
   'Content-Type': 'application/json;charset=UTF-8'
@@ -42,20 +43,10 @@ fly.interceptors.request.use(request => {
   }
   let t = getItem('token') || ''
   t && (request.body['tokenId'] = t)
+  if (request.url.indexOf('login') >= 0) {
+    delete request.body.tokenId
+  }
   request.body['channel'] = '7'
-  //  给所有请求添加自定义header
-  // request.headers['channel'] = '7'
-  // request.headers['timestamp'] = String(new Date().getTime())
-  // let t = getItem('token') || ''
-  // let h = getItem('selectedHospital')
-  // if (t) {
-  //   request.headers['tokenId'] = t
-  // }
-  // if (h) {
-  //   request.headers['hospitalId'] = h.id
-  // }
-  //  给所有请求添加自定义header
-  // request.headers['timestamp']= String(new Date().getTime())
   return request
 })
 //  添加响应拦截器，响应拦截器会在then/catch处理之前执行
@@ -65,12 +56,37 @@ fly.interceptors.response.use(
       mpvue.hideLoading()
     }, 300)
     if (response.data.result === '8') {
-      //  accessToken 过期,重新请求授权
-      let authInfo = await systemAuthorize()
-      if (authInfo.result === '1') {
-        setItem('accessToken', authInfo.data.accessToken)
+      //  记录前一次的请求
+      let callback = async function () {
+        if (response.request.url.indexOf('login') >= 0) {
+          let code = await util.getLoginCode()
+          if (code) {
+            response.request.body.data.code = code
+          } else {
+            mpvue.showToast({
+              title: '登录失败，请稍后重试',
+              icon: 'none',
+              duration: 2000
+            })
+            return false
+          }
+        }
+        post(response.request.baseURL + response.request.url, response.request.body)
       }
-      return false
+      if (response.data.result === '8') {
+        //  accessToken 过期,重新请求授权
+        let authInfo = await systemAuthorize()
+        if (authInfo.result === '1') {
+          setItem('accessToken', authInfo.data.accessToken)
+          callback().then(res => {
+            return res.data
+          }).catch(() => {
+            return false
+          })
+        } else {
+          return false
+        }
+      }
     }
     if (response.data.result !== '1') {
       mpvue.showToast({

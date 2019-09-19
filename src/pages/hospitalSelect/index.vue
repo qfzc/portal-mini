@@ -1,7 +1,7 @@
 <template>
-  <div class="hospitalSelect container">
+  <div class="hospitalSelect">
 
-      <div class="mask" v-if="showArea" @click="showArea = false">
+      <!-- <div class="mask" v-if="showArea" @click="showArea = false">
         <div class="hosArea" >
           <div class="title">请选择您要导航去的院区</div>
           <ul class="hosList">
@@ -10,7 +10,7 @@
             </li>
           </ul>
         </div>
-      </div>
+      </div> -->
 
     <!-- <div class="search-bar">
       <icon class="searchicon" type="search" size="16" />
@@ -19,15 +19,15 @@
 
     <hisHospital v-on:toPage="toContinue"></hisHospital>
 
-    <div v-if="hospitalList.length >0" >
+    <div v-if="hospitalList.length >0" style="width:100%;">
       <div class="hos-list row row-center" v-for="(item,index) in hospitalList" :key="index" @click="selectHospital(item)">
-        <div class="hos-logo"><img :src="item.logo?item.logo: constant.LOCAL_IMG + 'hos-def-logo.png'" alt=""></div>
+        <div class="hos-logo"><img :src="item.hospitalLogo?item.hospitalLogo: originImgUrl + 'hos-def-logo.png'" alt=""></div>
         <div class="hos-info">
-          <p>{{item.name}}</p>
+          <p>{{item.hospitalName}}({{item.areaName}})</p>
           <p>{{item.levelDesc}}</p>
-          <p>{{item.address}}</p>
+          <p>{{item.areaAddress}}</p>
         </div>
-        <div class="hos-location"><img :src="constant.LOCAL_IMG + 'more-arrow.png'" alt=""></div>
+        <div class="hos-location"><img :src="originImgUrl + 'more-arrow.png'" alt=""></div>
       </div>
     </div>
     <no-record :condition="hospitalList.length === 0" :tips="'抱歉，暂无医院列表信息'"></no-record>
@@ -37,7 +37,8 @@
 import hisHospital from '@/components/hisHospital'
 import NavList from '@/components/NavList'
 import NoRecord from '@/components/NoRecord'
-// import { getHospitalByArea, getHospitalArea } from '@/service/hospital.service'
+import { getHospitalList } from '@/service/hospital.service'
+// import { getUserInfo } from '@/service/user.service'
 import { setItem } from '@/utils/store'
 export default {
   data: function () {
@@ -55,20 +56,25 @@ export default {
     NavList,
     NoRecord
   },
-  onShow () {
-    //  获取传过来的区域id及待进入的页面url
-    let q = this.$root.$mp.query
-    this.waitUrl = q.waitUrl
-    if (q.id) {
-      this.getHospitalList(q.id)
+  computed: {
+    originImgUrl () {
+      return this.constant.LOCAL_IMG
     }
   },
+  onShow () {
+    let q = this.$root.$mp.query
+    this.waitUrl = q.waitUrl ? q.waitUrl : ''
+    // if (q.id) {
+    //   this.getHospitalLists(q.id)
+    // }
+    this.getHospitalLists()
+  },
   methods: {
-    selectArea (item) {
-      setItem('selectedHospital', this.tempHosInfo)
-      setItem('selectedArea', item)
-      this.go(item.areaId)
-    },
+    // selectArea (item) {
+    //   setItem('selectedHospital', this.tempHosInfo)
+    //   setItem('selectedArea', item)
+    //   // this.go(item.areaId)
+    // },
     inputBlur () {
       if (this.searchKey !== '' && this.searchKey.length > 0) {
         this.search()
@@ -98,74 +104,31 @@ export default {
     //  选择医院
     async selectHospital (item) {
       //  将选择的医院信息保存在本地
-      // setItem('selectedHospital',item)
-      //  查询是否有区域
-      // let areaList = await getHospitalArea({
-      //   orgId: item.orgId,
-      //   hospitalId: item.id
-      // })
-      // if (areaList.resultCode === this.constant.RESULT_SUCCESS) {
-      //   //  todo 显示区域列表(如果有的话) ,目前还没做
-      //   if (areaList.data.length > 1) {
-      //     //  todo
-      //     this.hosAreaList = areaList.data
-      //     this.showArea = true
-      //     this.tempHosInfo = item
-      //   } else if (areaList.data.length === 1) {
-      //     setItem('selectedHospital', item)
-      //     setItem('selectedArea', areaList.data[0])
-      //     // if(!!areaList.data && areaList.data.length > 0){
-      //     //   setItem('selectedArea',areaList.data[0])
-      //     //   areaId = areaList.data[0].areaId
-      //     // }else{
-      //     //   areaId = item.areaLevel
-      //     // }
-      //     //  todo 根据不同的路径 返回方式不一样
-      //     // if(this.waitUrl === 'noredirect'){
-      //     //   this.$utils.back(2)
-      //     //   return
-      //     // }
-      //     let areaId = areaList.data[0].areaId
-      //     this.go(areaId)
-      //     // mpvue.redirectTo({
-      //     //   url: '../' + this.waitUrl +'/main?areaId=' + areaId
-      //     // })
-      //   } else {
-      //     this.$utils.showToast('暂未找到院区')
-      //   }
-      // }
+      setItem('selectedHospital', item)
+      //  跳转到对应的页面
+      this.go()
     },
-    go (areaId) {
+    go () {
       if (this.waitUrl === 'noredirect') {
-        this.$utils.back(2)
+        this.$utils.back(1)
         return
       }
-      let url = '../' + this.waitUrl + '/main'
-      if (areaId) {
-        url = url + '?areaId=' + areaId
-      }
-      mpvue.redirectTo({
-        url: url
-      })
+      this.$utils.navigateTo(this.waitUrl)
     },
     //  获取医院列表
-    async getHospitalList (id) {
-      // let data = {
-      //   areaLevel: id,
-      //   orgId: '1001'
-      // }
-      // let res = await getHospitalByArea(data)
-      // if (res.resultCode === '1') {
-      //   this.hospitalList = res.data
-      //   //  将数据保存在vuex中
-      //   this.$store.commit('setHospitalList', res.data)
-      // }
+    async getHospitalLists (id) {
+      let data = {
+        hospitalLevel: '2'
+      }
+      let res = await getHospitalList(data)
+      if (res.result === this.constant.RESULT_SUCCESS) {
+        this.hospitalList = res.data
+        //  将数据保存在vuex中
+        this.$store.commit('setHospitalList', res.data)
+      }
     },
     toContinue (e) {
       this.go()
-      // mpvue.redirectTo({
-      //   url: '../'+ this.waitUrl+'/main'
-      // })
     }
   }
 }
@@ -205,15 +168,18 @@ export default {
     position: relative;
     box-shadow:0px 1px 2px 0px rgba(81,168,236,0.2);
     margin-bottom: 2px;
+    align-items: center;
     .hos-logo{
       padding: 0 15px;
       img{
         width: 34px;
         height: 34px;
+        display: block;
       }
     }
     .hos-info{
       p:nth-child(1){
+        margin-right: 30px;
         color: #111;
         font-size: 15px;
         line-height: 16px;
@@ -226,10 +192,10 @@ export default {
     }
     .hos-location{
       position: absolute;
-      right: 30px;
+      right: 15px;
       img{
-        width: 16px;
-        height: 21px;
+        width: 8px;
+        height: 15px;
       }
     }
   }

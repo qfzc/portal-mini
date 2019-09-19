@@ -33,8 +33,9 @@
     </div>
 </template>
 <script>
-    const REDIRECT_URL = process.env.REDIRECT_URL
-    const IMG_FILE_PATH = process.env.IMG_FILE_PATH
+    import { getItem } from '@/utils/store'
+const REDIRECT_URL = process.env.REDIRECT_URL
+const IMG_FILE_PATH = process.env.IMG_FILE_PATH
     export default {
       props: {
         type: String
@@ -48,10 +49,10 @@
               'name': '',
               'icon': '',
               'lists': [
-                { name: '挂 号', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon1_guahao.png', url: 'hospitalSelect', openUrl: '', isDeveloping: false, isNeedCard: false },
-                { name: '门诊缴费', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon2_jiaofei.png', url: 'clinicUnpayList', openUrl: '', isDeveloping: false, isNeedCard: true },
-                { name: '报告查询', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon3_baogao.png', url: 'myreport', openUrl: '', isDeveloping: false, isNeedCard: true },
-                { name: '排队候诊', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon4_paidui.png', url: 'WaitDoctor', openUrl: '', isDeveloping: false, isNeedCard: true }
+                { name: '挂 号', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon1_guahao.png', url: 'departDoctor', openUrl: '', isDeveloping: false, isNeedCard: false, isNeedSelectHos: true },
+                { name: '门诊缴费', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon2_jiaofei.png', url: 'clinicUnpayList', openUrl: '', isDeveloping: false, isNeedCard: true, isNeedSelectHos: true },
+                { name: '报告查询', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon3_baogao.png', url: 'myreport', openUrl: '', isDeveloping: false, isNeedCard: true, isNeedSelectHos: true },
+                { name: '排队候诊', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon4_paidui.png', url: 'WaitDoctor', openUrl: '', isDeveloping: false, isNeedCard: true, isNeedSelectHos: true }
               ]
             },
             'multipleService':
@@ -59,7 +60,7 @@
                           'name': '综合服务',
                           'icon': REDIRECT_URL + IMG_FILE_PATH + 'icon0_title1.png',
                           'lists': [
-                            { name: '挂号记录', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon5_guahaojilu.png', url: 'myregister', openUrl: '', isDeveloping: false, isNeedCard: true },
+                            { name: '挂号记录', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon5_guahaojilu.png', url: 'myRegister', openUrl: '', isDeveloping: false, isNeedCard: true },
                             { name: '缴费记录', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon6_jiaofeijilu.png', url: 'mypay', openUrl: '', isDeveloping: false, isNeedCard: true },
                             { name: '电子处方', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon7_chufang.png', url: '', openUrl: '', isDeveloping: true, isNeedCard: true },
                             { name: '满意度调查', icon: REDIRECT_URL + IMG_FILE_PATH + 'icon8_manyidu.png', url: 'SurveyDoctorList', openUrl: '', isDeveloping: false, isNeedCard: true },
@@ -111,7 +112,13 @@
       },
       methods: {
         toPage (item) {
-          this.$utils.navigateTo(item.url)
+          if (item.isDeveloping) {
+            this.$utils.navigateTo('developing')
+          } else if ((item.isNeedSelectHos && getItem('selectedHospital') === undefined) || item.url === 'departDoctor') {
+            this.$utils.navigateTo('hospitalSelect', { waitUrl: item.url })
+          } else {
+            this.$utils.navigateTo(item.url)
+          }
         }
       }
     }

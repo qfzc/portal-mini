@@ -4,7 +4,9 @@
     "pages/index/main",
     "pages/me/main",
     "pages/hospitalSelect/main",
-    "pages/hospitalArea/main"
+    "pages/hospitalArea/main",
+    "pages/developing/main",
+    "pages/myRegister/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

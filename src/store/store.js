@@ -22,6 +22,10 @@ const store = new Vuex.Store({
     },
     setFromIndex: (state, value) => {
       state.fromIndex = value
+    },
+    setHospitalList: (state, value) => {
+      const obj = state
+      obj.hospitalList = value
     }
   },
   getters: {
@@ -30,6 +34,9 @@ const store = new Vuex.Store({
     },
     getFromIndex: (state) => {
       return state.fromIndex
+    },
+    getHospitalList: (state) => {
+      return state.hospitalList
     }
   }
 })

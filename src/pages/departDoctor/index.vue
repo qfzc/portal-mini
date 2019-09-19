@@ -21,14 +21,14 @@
     <div v-show="tabIndex === 1" class="doctor">
       <div  class="row row-center doc-list" v-for="(item,i) in docList" :key="i"  @click="toPage(item,2)">
         <div class="doc-logo">
-          <img :src="item.avatar ? item.avatar: 'http://bmob-cdn-20712.b0.upaiyun.com/2019/03/28/83869d8140e8f25380db41c58d98b7ea.png'" alt="">
+          <img :src="item.avatar ? item.avatar: originImgUrl + 'ico-doctor.png'" alt="">
         </div>
         <div class="doc-info">
-          <p>{{item.rank}} {{item.name}}</p>
-          <p>{{item.dept}}</p>
+          <p>{{item.doctName}} {{item.rankName}}</p>
+          <p>{{item.deptName}}</p>
           <p>{{item.doctDesc ? item.doctDesc : '暂无介绍'}}</p>
         </div>
-        <div class="doc-arrow"><img src="http://bmob-cdn-20712.b0.upaiyun.com/2019/03/28/37e778c2403c279680a2a4b4e63f2dbb.png" alt=""></div>
+        <div class="doc-arrow"><img :src="originImgUrl + 'more-arrow.png'" alt=""></div>
       </div>
     </div>
 
@@ -37,7 +37,8 @@
 </template>
 <script>
 import tabs from '@/components/tabs'
-import { getRegisterDept, getRegisterDoct } from '@/service/register.service'
+import { getRegisterDept } from '@/service/register.service'
+import { getHospitalDocts } from '@/service/hospital.service'
 import { getItem } from '@/utils/store'
 export default {
   data: function () {
@@ -58,9 +59,15 @@ export default {
   components: {
     tabs
   },
+  computed: {
+    originImgUrl () {
+      return this.constant.LOCAL_IMG
+    }
+  },
   onLoad () {
+    this.flag = 0
     let devInfo = mpvue.getSystemInfoSync()
-    let area = getItem('selectedArea')
+    let area = getItem('selectedHospital')
     this.devAvaHeight = devInfo.windowHeight - 110
     //  获取传过来的区域id及待进入的页面url
     let q = this.$root.$mp.query
@@ -79,24 +86,22 @@ export default {
     async getDocInfo () {
       let hosInfo = getItem('selectedHospital')
       let data = {
-        orgId: hosInfo.orgId,
-        hospitalId: hosInfo.id,
+        hospitalId: hosInfo.hospitald,
         areaId: this.areaId
       }
-      let res = await getRegisterDoct(data)
-      if (res.resultCode === '1') {
+      let res = await getHospitalDocts(data)
+      if (res.result === this.constant.RESULT_SUCCESS) {
         this.docList = res.data.length > 100 ? res.data.slice(0, 90) : res.data
       }
     },
     async getHospitalDept () {
       let hosInfo = getItem('selectedHospital')
       let data = {
-        hospitalId: hosInfo.id,
-        orgId: hosInfo.orgId,
+        hospitalId: hosInfo.hospitald,
         areaId: this.areaId
       }
       let res = await getRegisterDept(data)
-      if (res.resultCode === '1') {
+      if (res.result === this.constant.RESULT_SUCCESS) {
         this.deptInfo = res.data
       }
     },
@@ -176,6 +181,7 @@ export default {
     }
   }
   .doc-list{
+    align-items: center;
     background: #fff;
     height: 75px;
     position: relative;

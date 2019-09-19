@@ -21,63 +21,63 @@ export default {
   props: {
     showMore: {
       type: Boolean,
-      default: function(){
+      default: function () {
         return true
       }
     }
   },
-  data: function(){
+  data: function () {
     return {
       isChoose: true,
       startDate: '',
       endDate: ''
     }
   },
-  onLoad(){
+  onLoad () {
     this.isChoose = this.showMore
-    if(!this.showMore){
-      this.formatDatePicker();
+    if (!this.showMore) {
+      this.formatDatePicker()
     }
   },
   methods: {
-    loadMore() {
-        this.isChoose = !this.isChoose
-        //初始化日期控件
-        this.formatDatePicker();
+    loadMore () {
+      this.isChoose = !this.isChoose
+      // 初始化日期控件
+      this.formatDatePicker()
     },
-    //默认初始化日历控件
-    formatDatePicker() {
-        const today = new Date()
-        this.endDate = today.format('yyyy-MM-dd')
-        today.setMonth(today.getMonth() - 3)
-        this.startDate = today.format('yyyy-MM-dd')
+    // 默认初始化日历控件
+    formatDatePicker () {
+      const today = new Date()
+      this.endDate = today.format('yyyy-MM-dd')
+      today.setMonth(today.getMonth() - 3)
+      this.startDate = today.format('yyyy-MM-dd')
     },
-    setStartDate(e){
+    setStartDate (e) {
       this.startDate = e.mp.detail.value
     },
-    setEndDate(e){
+    setEndDate (e) {
       this.endDate = e.mp.detail.value
     },
-    //判断日期是否合法
-    checkDate(sDate, eDate) {
-        var formate = new RegExp(/-/g);
-        sDate = sDate.replace(formate,"");
-        eDate = eDate.replace(formate,"");
-        //判断日期大小及合法性
-        if ((sDate > eDate) || (sDate ==='') || (eDate ==='')) {
-            this.$utils.alert('日期输入格式不正确，请重新输入');
-            return false
-        }
-        return true
+    // 判断日期是否合法
+    checkDate (sDate, eDate) {
+      var formate = new RegExp(/-/g)
+      sDate = sDate.replace(formate, '')
+      eDate = eDate.replace(formate, '')
+      // 判断日期大小及合法性
+      if ((sDate > eDate) || (sDate === '') || (eDate === '')) {
+        this.$utils.alert('日期输入格式不正确，请重新输入')
+        return false
+      }
+      return true
     },
-    chooseNewDate() {
-        if (this.checkDate(this.startDate,this.endDate)) {
-          let dateObj = {
-            startDate: this.startDate,
-            endDate: this.endDate
-          }
-          this.$emit('selectDate', dateObj)
+    chooseNewDate () {
+      if (this.checkDate(this.startDate, this.endDate)) {
+        let dateObj = {
+          startDate: this.startDate,
+          endDate: this.endDate
         }
+        this.$emit('selectDate', dateObj)
+      }
     }
   }
 }
@@ -134,7 +134,7 @@ button::after {
         width: 15px;
         top: 7px;
         left: 10px;
-        background-image: url(http://bmob-cdn-20712.b0.upaiyun.com/2019/05/20/b58048a6409a9a4580a1120b7041d0e2.png);
+        background-image: url($main-img-url + 'icon-calendar.png');
         background-size: 100% 100%;
       }
       &:after {
@@ -144,7 +144,7 @@ button::after {
         width: 15px;
         right: 4px;
         top: 12px;
-        background-image: url(http://bmob-cdn-20712.b0.upaiyun.com/2019/05/20/163ad2b5402a390a809494ef18425117.png);
+        background-image: url($main-img-url + 'more_gray_dwon.png');
         background-size: 100% 100%;
       }
       &:nth-child(1) {
