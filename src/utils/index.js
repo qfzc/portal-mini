@@ -1,5 +1,7 @@
 /* eslint no-extend-native: ["error", { "exceptions": ["Date"] }] */
 
+import { setItem } from './store'
+import { login } from '../service/user.service'
 Date.prototype.format = function (fmt) {
   var o = {
     'M+': this.getMonth() + 1, // 月份
@@ -281,6 +283,40 @@ const utils = {
     if (value) {
       return value.substr(0, 3) + '****' + value.substr(-4)
     }
+  },
+  toLogin () {
+    return new Promise((resolve, reject) => {
+      mpvue.getUserInfo({
+        success: function (u) {
+          setItem('userInfo', u)
+          let params = {
+            code: '',
+            loginType: '3',
+            extraMap: {
+              encryptedData: u.encryptedData,
+              iv: u.iv,
+              rawData: u.rawData,
+              signature: u.signature
+            }
+          }
+          mpvue.login({
+            success (res) {
+              if (res.code) {
+                params.code = res.code
+                login(params).then(result => {
+                  setItem('token', result.data.tokenId)
+                  resolve(result)
+                })
+              } else {
+                console.log('登录失败！' + res.errMsg)
+                // eslint-disable-next-line prefer-promise-reject-errors
+                reject(false)
+              }
+            }
+          })
+        }
+      })
+    })
   }
 }
 export default utils

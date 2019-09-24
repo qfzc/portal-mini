@@ -35,7 +35,7 @@
 </template>
 <script>
     import MenuList from '@/components/MenusList'
-    import { systemAuthorize, login } from '@/service/user.service'
+    import { systemAuthorize } from '@/service/user.service'
     import { getVoucherList } from '@/service/voucher.service'
     import { setItem, getItem } from '@/utils/store'
 
@@ -57,45 +57,16 @@
       },
       // 从自定义菜单中点击进入是获取code
       async onLoad () {
+        // setItem('token', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJvTmd6YjFaRXUyeFVDd3ExbS1RQTlDN3B5SjM0IiwiY3JlYXRlZCI6MTU2ODg5MDI1Mjc3MiwidXNlcklkIjoiNDMifQ.hdk8gltfcPL0jOedpf24_XW9vhxGIIzJudHWRoO9ZfoJcrKOOExhKe9gSzaeW0h00jEOs-a6o2p4hpPj_i-yqg')
         //  判断是否有accessToken
         let accessToken = getItem('accessToken')
         if (!accessToken) {
           let auth = await systemAuthorize()
           if (auth.result === this.constant.RESULT_SUCCESS) {
             setItem('accessToken', auth.data.accessToken)
+            await this.$utils.toLogin()
           }
         }
-        let u = getItem('userInfo')
-        if (!u) {
-          wx.getUserInfo({
-            success: function (res) {
-              setItem('userInfo', res)
-              u = res
-            }
-          })
-        }
-        let params = {
-          code: '',
-          loginType: '3',
-          extraMap: {
-            encryptedData: u.encryptedData,
-            iv: u.iv,
-            rawData: u.rawData,
-            signature: u.signature
-          }
-        }
-        wx.login({
-          success (res) {
-            if (res.code) {
-              params.code = res.code
-              login(params).then(result => {
-                setItem('token', result.data.tokenId)
-              })
-            } else {
-              console.log('登录失败！' + res.errMsg)
-            }
-          }
-        })
         this.getVoucherLists()
       },
       methods: {

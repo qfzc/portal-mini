@@ -52,6 +52,7 @@ export default {
       // 本地保存用户信息
       let userInfo = e.mp.detail
       setItem('userInfo', userInfo)
+      //  调用登录接口
       //  跳转到首页
       wx.reLaunch({
         url: '/pages/index/main'

@@ -52,42 +52,43 @@ fly.interceptors.request.use(request => {
 //  添加响应拦截器，响应拦截器会在then/catch处理之前执行
 fly.interceptors.response.use(
   async response => {
+    let isNormalRequest = false
     setTimeout(() => {
       mpvue.hideLoading()
     }, 300)
-    if (response.data.result === '8') {
+    if (response.data.result === '8' || response.data.result === '10000018') {
+      isNormalRequest = true
       //  记录前一次的请求
       let callback = async function () {
-        if (response.request.url.indexOf('login') >= 0) {
-          let code = await util.getLoginCode()
-          if (code) {
-            response.request.body.data.code = code
-          } else {
-            mpvue.showToast({
-              title: '登录失败，请稍后重试',
-              icon: 'none',
-              duration: 2000
-            })
-            return false
-          }
-        }
-        post(response.request.baseURL + response.request.url, response.request.body)
+        post(response.request.baseURL + response.request.url, response.request.body).then(data => {
+          isNormalRequest = false
+          console.log('data...')
+          console.log(data)
+          return data
+        }).catch(() => {
+          isNormalRequest = false
+        })
       }
+
       if (response.data.result === '8') {
-        //  accessToken 过期,重新请求授权
+      //  accessToken 过期,重新请求授权
         let authInfo = await systemAuthorize()
         if (authInfo.result === '1') {
           setItem('accessToken', authInfo.data.accessToken)
-          callback().then(res => {
-            return res.data
-          }).catch(() => {
-            return false
-          })
+          callback()
         } else {
           return false
         }
+      } else {
+        let loginStatus = await util.toLogin()
+        console.log('request..login')
+        console.log(loginStatus)
+        if (loginStatus) {
+          callback()
+        }
       }
     }
+
     if (response.data.result !== '1') {
       mpvue.showToast({
         title: response.data.message || '服务异常,请稍后再试',
@@ -97,7 +98,7 @@ fly.interceptors.response.use(
       return false
     }
     //  只将请求结果的data字段返回
-    return response.data
+    if (!isNormalRequest) return response.data
   },
   () => {
     mpvue.hideLoading()
